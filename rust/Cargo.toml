@@ -1,0 +1,10 @@
+[package]
+name = "aoc-rs"
+description = "Advent of Code 2019 - Rust edition"
+version = "2019.0.0"
+authors = ["Roland Tepp <luolong@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
