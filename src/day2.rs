@@ -9,11 +9,6 @@ pub struct Intcode {
     pointer: usize,
 }
 
-enum Instruction {
-    Add = 1isize, 
-    Mul = 2isize,
-    Halt = 99isize,
-}
 
 impl Intcode {
     pub fn from_string(input: String) -> Result<Intcode, String> {        
@@ -37,12 +32,20 @@ impl Intcode {
     /// until it finishes or halts execution.
     pub fn run(&mut self) -> Result<&mut Self, String> {
         loop {
-            let result = self.eval_instruction();
+            let result = self.eval();
             match result {
-                Ok(Some(_)) => continue,
-                Ok(None) => {
-                    return Ok(self);
-                }
+                Ok(len) => {
+                    if len == 0 {
+                        // Halt instruction (99) will not move the instruction pointer.
+                        // Halt the execution immediately with an Ok result
+                        return Ok(self);
+                    }
+                    
+                    // Othrwise increase current cursor position by size of the
+                    // evaluated instruction and return
+                    self.pointer += len;
+                    continue
+                },
                 Err(message) => {
                     return Err(message);
                 }
@@ -50,51 +53,54 @@ impl Intcode {
         }
     }
 
-    fn read_next(&mut self) -> isize {
-        let pointer = self.pointer;
-        self.pointer += 1;
-        self[pointer]
+    fn peek(&mut self) -> isize {
+        self[self.pointer]
     }
 
-    /// Evaluates next opcode, returning new cursor position
-    fn eval_instruction(&mut self) -> Result<Option<&mut Self>, String> {
-        let instruction = self.read_next();
+    /// Evaluates current instruction, returning size of the instruction.
+    fn eval(&mut self) -> Result<usize, String> {
+        let instruction = self.peek();
         match instruction {
-            Instruction::Add => self.eval_add().map(|it| Some(it)),
-            Instruction::Mul => self.eval_mul().map(|it| Some(it)),
-            Instruction::Halt => Ok(None),
+            1 => self.eval_add(),
+            2 => self.eval_mul(),
+            99 => Ok(0),
+            
             _ => Err(format!("Unrecognized instruction: {}", instruction)),
         }
     }
 
-    fn eval_add(&mut self) -> Result<&mut Self, String> {
-        let p1 = self.read_next();
+    /// evaluates current instruction as ADD, returninig 4 as the size value
+    fn eval_add(&mut self) -> Result<usize, String> {
+        let instruction = self.pointer;
+        
+        let p1 = self[instruction + 1];
         let p1 = to_usize(p1).ok_or(format!("Invalid first input position: {}", p1))?;
 
-        let p2 = self.read_next();
+        let p2 = self[instruction + 2];
         let p2 = to_usize(p2).ok_or(format!("Invalid second input position: {}", p2))?;
 
-        let target = self.read_next();
+        let target = self[instruction + 3];
         let target = to_usize(target).ok_or(format!("Invalid target position: {}", target))?;
 
         self[target] = self[p1] + self[p2];
 
-        Ok(self)
+        Ok(4)
     }
 
-    fn eval_mul(&mut self) -> Result<&mut Self, String> {
-        let p1 = self.read_next();
+    fn eval_mul(&mut self) -> Result<usize, String> {
+        let instruction = self.pointer;
+
+        let p1 = self[instruction + 1];
+        let p2 = self[instruction + 2];
+        let target = self[instruction + 3];
+
         let p1 = to_usize(p1).ok_or(format!("Invalid first input position: {}", p1))?;
-
-        let p2 = self.read_next();
         let p2 = to_usize(p2).ok_or(format!("Invalid second input position: {}", p2))?;
-
-        let target = self.read_next();
         let target = to_usize(target).ok_or(format!("Invalid target position: {}", target))?;
 
         self[target] = self[p1] * self[p2];
 
-        Ok(self)
+        Ok(4)
     }
 }
 
@@ -141,7 +147,7 @@ mod test {
     fn it_can_execute_intcode() {
         assert_eq!(
             Intcode::new(vec![1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50]).run(),
-            Ok(Intcode::new(vec![3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50]).with_position(9))
+            Ok(Intcode::new(vec![3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50]).with_position(8))
         );
     }
 }
