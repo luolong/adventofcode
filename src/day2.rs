@@ -9,6 +9,12 @@ pub struct Intcode {
     pointer: usize,
 }
 
+enum Instruction {
+    Add = 1isize, 
+    Mul = 2isize,
+    Halt = 99isize,
+}
+
 impl Intcode {
     pub fn from_string(input: String) -> Result<Intcode, String> {        
         let numbers: Vec<&str> = input.trim_end().split(",").collect();
@@ -31,7 +37,7 @@ impl Intcode {
     /// until it finishes or halts execution.
     pub fn run(&mut self) -> Result<&mut Self, String> {
         loop {
-            let result = self.eval_next();
+            let result = self.eval_instruction();
             match result {
                 Ok(Some(_)) => continue,
                 Ok(None) => {
@@ -51,12 +57,12 @@ impl Intcode {
     }
 
     /// Evaluates next opcode, returning new cursor position
-    fn eval_next(&mut self) -> Result<Option<&mut Self>, String> {
+    fn eval_instruction(&mut self) -> Result<Option<&mut Self>, String> {
         let instruction = self.read_next();
         match instruction {
-            1 => self.eval_add().map(|it| Some(it)),
-            2 => self.eval_mul().map(|it| Some(it)),
-            99 => Ok(None),
+            Instruction::Add => self.eval_add().map(|it| Some(it)),
+            Instruction::Mul => self.eval_mul().map(|it| Some(it)),
+            Instruction::Halt => Ok(None),
             _ => Err(format!("Unrecognized instruction: {}", instruction)),
         }
     }
