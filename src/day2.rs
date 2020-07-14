@@ -3,7 +3,7 @@ use std::{
     ops::{Index, IndexMut},
 };
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Intcode {
     memory: Vec<isize>,
     pointer: usize,
@@ -123,12 +123,20 @@ fn to_usize(value: isize) -> Option<usize> {
 }
 
 pub fn day2(input: String) -> Result<(), String> {
-    let mut intcode = Intcode::from_string(input)?;
-    intcode[1] = 12;
-    intcode[2] = 2;
-    intcode.run()?;
+    let prototype = Intcode::from_string(input)?;
     
-    println!("Value at position 0 is {}", intcode[0]);
+    for noun in 0..100 {
+        for verb in 0..100 {
+            let mut experiment = prototype.clone();
+            experiment[1] = noun;
+            experiment[2] = verb;
+            experiment.run()?;
+            if experiment[0] == 19690720 {
+                println!("(100 * {} + {}) = {}", noun, verb, 100 * noun + verb);
+            }
+        }
+    }
+    
     Ok(())
 }
 
