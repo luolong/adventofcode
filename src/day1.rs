@@ -1,5 +1,4 @@
-use std::fs::File;
-use std::io;
+use std::io::{BufReader, Lines, Read};
 
 /// # Calculate fuel required for the for the mass.
 ///
@@ -38,7 +37,7 @@ fn additional_fuel(mass: i64) -> impl std::iter::Iterator<Item = i64> {
     })
 }
 
-pub fn day1(lines: io::Lines<io::BufReader<File>>) -> Result<(), String> {
+pub fn day1<R: Read>(lines: Lines<BufReader<R>>) -> Result<(), String> {
     let mut total_fuel: i64 = 0;
     for line in lines {
         let fuel_mass = line.unwrap().parse().unwrap();
@@ -50,7 +49,7 @@ pub fn day1(lines: io::Lines<io::BufReader<File>>) -> Result<(), String> {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
 
     #[test]

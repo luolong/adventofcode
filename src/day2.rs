@@ -1,6 +1,7 @@
 use std::{
     convert::TryInto,
     ops::{Index, IndexMut},
+    num::ParseIntError,
 };
 
 #[derive(Debug, Eq, PartialEq, Clone)]
@@ -12,14 +13,12 @@ pub struct Intcode {
 
 impl Intcode {
     pub fn from_string(input: String) -> Result<Intcode, String> {        
-        let numbers: Vec<&str> = input.trim_end().split(",").collect();
-        let mut state = Vec::with_capacity(numbers.len());
-        for number in numbers {
-            let integer = number.parse().map_err(|e| {
-                format!("Could not read intcode state: {}", e)
+        let state: Vec<isize> = input.trim_end().split(",")
+            .map(|number| { number.parse::<isize>() })
+            .collect::<Result<Vec<isize>, ParseIntError>>()
+            .map_err(|err| {
+                format!("Could not read intcode state: {}", err)
             })?;
-            state.push(integer);
-        }
         
         Ok(Intcode::new(state))
     }
@@ -127,10 +126,12 @@ pub fn day2(input: String) -> Result<(), String> {
     
     for noun in 0..100 {
         for verb in 0..100 {
+            
             let mut experiment = prototype.clone();
             experiment[1] = noun;
             experiment[2] = verb;
             experiment.run()?;
+            
             if experiment[0] == 19690720 {
                 println!("(100 * {} + {}) = {}", noun, verb, 100 * noun + verb);
             }
@@ -141,7 +142,7 @@ pub fn day2(input: String) -> Result<(), String> {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::Intcode;
 
     impl Intcode {

@@ -1,10 +1,13 @@
 use std::{fs::File, io, io::BufRead, path::Path, vec::Vec};
 
 mod day1;
-use day1::*;
+use day1::day1;
 
 mod day2;
-use day2::*;
+use day2::day2;
+
+mod day3;
+use day3::day3;
 
 fn run(command: &str) -> Result<(), String> {
     match command {
@@ -19,6 +22,12 @@ fn run(command: &str) -> Result<(), String> {
                 format!("Failed to load day 2 input: {}", err)
             })?;
             day2(input)
+        }
+        "day3" => {
+            let input = read_lines("day3.txt").map_err(|err| {
+                format!("Failed to load day 3 input: {}", err)
+            })?;
+            day3(input)
         }
         _ => Err(format!("Unrecognized command: {}", command)),
     }
