@@ -12,21 +12,18 @@ use day3::day3;
 fn run(command: &str) -> Result<(), String> {
     match command {
         "day1" => {
-            let input = read_lines("day1.txt").map_err(|err| {
-                format!("Failed to load day 1 input: {}", err)
-            })?;
+            let input = read_lines("day1.txt")
+                .map_err(|err| format!("Failed to load day 1 input: {}", err))?;
             day1(input)
         }
         "day2" => {
-            let input = read_line("day2.txt").map_err(|err| {
-                format!("Failed to load day 2 input: {}", err)
-            })?;
+            let input = read_line("day2.txt")
+                .map_err(|err| format!("Failed to load day 2 input: {}", err))?;
             day2(input)
         }
         "day3" => {
-            let input = read_lines("day3.txt").map_err(|err| {
-                format!("Failed to load day 3 input: {}", err)
-            })?;
+            let input = read_lines("day3.txt")
+                .map_err(|err| format!("Failed to load day 3 input: {}", err))?;
             day3(input)
         }
         _ => Err(format!("Unrecognized command: {}", command)),

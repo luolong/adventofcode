@@ -1,4 +1,5 @@
 use std::io::{BufReader, Lines, Read};
+use std::io;
 
 /// # Calculate fuel required for the for the mass.
 ///
@@ -39,8 +40,15 @@ fn additional_fuel(mass: i64) -> impl std::iter::Iterator<Item = i64> {
 
 pub fn day1<R: Read>(lines: Lines<BufReader<R>>) -> Result<(), String> {
     let mut total_fuel: i64 = 0;
+    let lines = lines.collect::<io::Result<Vec<String>>>().map_err(|err| {
+        format!("Failed to read a line: {}", err)
+    })?;
+
     for line in lines {
-        let fuel_mass = line.unwrap().parse().unwrap();
+        let fuel_mass = line.parse().map_err(|err| {
+            format!("{:?}", err)
+        })?;
+
         total_fuel += get_fuel_for_module(fuel_mass);
     }
 
