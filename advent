@@ -1,8 +1,18 @@
 #!/usr/bin/env rakudo
+# vim: syntax=perl6
+
 use lib 'lib';
 
-sub MAIN('day1') {
+sub MAIN('day1',                        #= solve puzzle for day 1
+  Str $file where *.IO.f = 'day1.txt',  #= file name containing input to day 1 puzzle
+) {
     require Day1 <&day1>;
-    day1();
+
+    say "Day 1, part 1";
+    day1($file, 2);
+
+    say "Day 1, part 2";
+    day1($file, 3);
+
 }
 
