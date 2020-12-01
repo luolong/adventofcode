@@ -1,0 +1,8 @@
+#!/usr/bin/env rakudo
+use lib 'lib';
+
+sub MAIN('day1') {
+    require Day1 <&day1>;
+    day1();
+}
+

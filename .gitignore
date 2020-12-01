@@ -1,0 +1,7 @@
+# Editors
+.idea/
+.vscode/
+
+# Raku language
+.precomp/
+
