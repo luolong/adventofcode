@@ -5,3 +5,5 @@
 # Raku language
 .precomp/
 
+# Input files
+day*.txt
