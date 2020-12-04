@@ -22,6 +22,10 @@ class CheckIndices {
 }
 
 sub day2(Str $file) is export {
-  say "Day 2, part 1: ", ([+] $file.IO.lines.map({ Line.parse($_, actions => CountChars).made })), " valid passwords";
-  say "Day 2, part 2: ", ([+] $file.IO.lines.map({ Line.parse($_, actions => CheckIndices).made })), " valid passwords";
+  my @lines = $file.IO.lines;
+  for CountChars, CheckIndices {
+    state $part = 1;
+    my $count = [+] @lines.map(-> $line { Line.parse($line, actions => $_).made });
+    say "Day 2, part { $part++ }: $count valid passwords";
+  }
 }
