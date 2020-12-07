@@ -4,16 +4,22 @@
 use lib 'lib';
 
 multi MAIN('day1',                        #= solve puzzle for day 1
-  Str $file where *.IO.f = 'day1.txt',    #= file name containing input to day's puzzle
+  Str $file where *.IO.f = 'day1.txt'     #= file name containing input to day's puzzle
 ) {
   require Day1 <&day1>;
   day1($file);
 }
 
 multi MAIN('day2',                        #= solve puzzle for day 2
-  Str $file where *.IO.f = 'day2.txt',    #= file name containing input to day's puzzle
+  Str $file where *.IO.f = 'day2.txt'     #= file name containing input to day's puzzle
 ) {
   require Day2 <&day2>;
   day2($file);
 }
 
+multi MAIN('day3',                        #= solve puzzle for day 3
+  Str $file where *.IO.f = 'day3.txt'     #= file name containing input to day's puzzle
+) {
+  require Day3 <&day3>;
+  day3($file);
+}
