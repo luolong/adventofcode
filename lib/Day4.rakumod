@@ -27,16 +27,16 @@ class Passport is Map {
     so self.{all(MANDATORY)}:exists
   }
 
-  method all-fields-valid(Bool :$verbose = False) {
+  method all-fields-valid {
     my ($byr, $iyr, $eyr, $hgt, $hcl, $ecl, $pid) = self.{@(MANDATORY)};
     when so $byr & $iyr & $eyr & $hgt & $hcl & $ecl & $pid {
       return so is-valid('byr', $byr)
-             && is-valid('iyr', $iyr)
-             && is-valid('eyr', $eyr)
-             && is-valid('hgt', $hgt)
-             && is-valid('hcl', $hcl)
-             && is-valid('ecl', $ecl)
-             && is-valid('pid', $pid);
+              & is-valid('iyr', $iyr)
+              & is-valid('eyr', $eyr)
+              & is-valid('hgt', $hgt)
+              & is-valid('hcl', $hcl)
+              & is-valid('ecl', $ecl)
+              & is-valid('pid', $pid);
     }
   }
 }
@@ -53,7 +53,7 @@ sub day4(Str $file) is export {
   say "Day 4. part 1: $answer valid passports";
 
   $answer = @documents
-             .grep({ $_.all-fields-valid :verbose($verbose) })
+             .grep({ $_.all-fields-valid })
              .elems;
   say "Day 4. part 2: $answer valid passports";
 
