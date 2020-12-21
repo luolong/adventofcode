@@ -21,7 +21,7 @@ class CheckIndices {
   }
 }
 
-sub day2(Str $file) is export {
+sub day2(Str $file, Bool :$verbose = False) is export {
   my @lines = $file.IO.lines;
   for CountChars, CheckIndices {
     state $part = 1;

@@ -1,7 +1,7 @@
 unit module Day1;
 
 
-sub day1(Str $file) is export {
+sub day1(Str $file, Bool :$verbose = False) is export {
   my method solution(Seq:D: $size) {
     with self.combinations($size).first({ .sum == 2020 }) {
       "{ .join: ' x ' } = { .reduce: &infix:<*> }"
