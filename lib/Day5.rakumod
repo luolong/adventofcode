@@ -1,41 +1,30 @@
 unit module Day5;
 
-grammar BoardingPass {
-  has Int $.row;
-  has Int $.column;
+sub day5(Str:D $file) is export {
+  my @seat-ids = $file.IO.lines
+                .grep({ .Bool })
+                .map(&to-pair)
+                .map(&to-seat-id)
+                .sort;
 
-  method parse(Str $input --> BoardingPass) {
-    return BoardingPass.new(
-      row => $input.substr(0, 7).&convert(<F B>),
-      column => $input.substr(7, *).&convert(<L R>)
-    )
-  }
-
-  method seat-id { 8 * $.row + $.column }
-
-  multi method gist(BoardingPass:D:) {
-    'Row ' ~ $.row ~ ', Column ' ~ $.column ~ ', seat ID ' ~ $.seat-id
-  }
+  say "Day 5, Part 1: Max seat ID is ", @seat-ids.max;
+  say "Day 5, Part 2: Your seat ID is ", @seat-ids.rotor(2 => -1)
+     .first({ ([-] $_.reverse) == 2 })
+     .min.succ;
 }
 
-my method convert(Str:D: @bits) {
+sub to-pair(Str $input where / ^^ <[FB]> ** 7  <[LR]> ** 3 $$ / --> List:D) {
+  $input.substr(0, 7).&to-int(<F B>), $input.substr(7, *).&to-int(<L R>)
+}
+
+sub to-seat-id(*@list --> Int) {
+  [+] @list Z* (8, 1)
+}
+
+my method to-int(Str:D: @bits --> Int) {
   my $str = self;
   for @bits.kv -> $i, $bit {
     $str ~~ s :g /$bit/$i/
   }
   return ":{@bits.elems}<$str>".Int;
-}
-
-sub day5(Str:D $file) is export {
-  my @boarding-passes =  $file.IO.lines.grep({ .Bool }).map({
-     BoardingPass.parse($_)
-   });
-
-  say "Day 5, Part 1: Max sead ID is ", @boarding-passes.map({ .seat-id }).max;
-
-  .say for @boarding-passes.sort({ $^a.seat-id cmp $^b.seat-id }).rotor(3 => -2).grep( -> @list {
-    my $offset = @list[0].seat-id;
-    my @l = @list>>.seat-id Z- $offset xx *;
-    not (@l eqv [0, 1, 2])
-  });
 }
