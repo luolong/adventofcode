@@ -8,6 +8,11 @@ sub day1(Str $file) is export {
     }
   }
 
-  say "Day1, part1: ", $file.IO.lines.&solution: 2;
-  say "Day1, part2: ", $file.IO.lines.&solution: 3;
+  for 1..2 -> $i {
+    say qq:to/END/;
+    Day 1, Part $i:
+      { $file.IO.lines.&solution: $i+1 }
+    END
+  }
+
 }

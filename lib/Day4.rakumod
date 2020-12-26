@@ -47,14 +47,16 @@ sub day4(Str $file) is export {
                 .map({ Passport.parse($_) });
 
   my Int $answer;
-  $answer = @documents
-             .grep({ $_.all-fields-present })
-             .elems;
-  say "Day 4. part 1: $answer valid passports";
 
-  $answer = @documents
-             .grep({ $_.all-fields-valid })
-             .elems;
-  say "Day 4. part 2: $answer valid passports";
+  say qq:to/END/;
+  Day 4, Part 1:
+    {
+      @documents.grep({ $_.all-fields-present }).elems
+    } valid passports (all mandatory fields present)
 
+  Day 4, Part 2:
+    {
+      @documents.grep({ $_.all-fields-valid }).elems
+    } valid passports (all mandatory fields are present and valid)
+  END
 }

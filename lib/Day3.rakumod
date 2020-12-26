@@ -9,11 +9,15 @@ sub infix:<count-trees>(@arr, @xy --> Int) {
 sub day3(Str $file) is export {
   my @map = $file.IO.lines>>.comb;
 
-  say "Day 3, part 1: ", @map count-trees (3, 1), " trees";
+  say qq:to/END/;
+  Day 3, Part 1:
+    { @map count-trees (3, 1) } trees";
 
-  say "Day 3, part 2: ", [*] gather {
-    for  (1, 1; 3, 1; 5, 1; 7, 1; 1, 2) -> @slope {
-      take @map count-trees @slope
-    }
-  }
+  Day 3, Part 2:
+    { [*] gather {
+      for  (1, 1; 3, 1; 5, 1; 7, 1; 1, 2) -> @slope {
+        take @map count-trees @slope
+      }
+    } }
+  END
 }
