@@ -1,0 +1,2 @@
+/advent         linguist-language=perl6
+/lib/*.rakumod  linguist-language=perl6
