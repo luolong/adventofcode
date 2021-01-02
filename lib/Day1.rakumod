@@ -1,6 +1,5 @@
 unit module Day1;
 
-
 sub day1(Str $file) is export {
   my method solution(Seq:D: $size) {
     with self.combinations($size).first({ .sum == 2020 }) {
