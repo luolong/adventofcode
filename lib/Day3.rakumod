@@ -6,7 +6,7 @@ sub infix:<count-trees>(@arr, @xy --> Int) {
     .elems
 }
 
-sub day3(Str $file) is export {
+sub run(Str $file) is export {
   my @map = $file.IO.lines>>.comb;
 
   say qq:to/END/;

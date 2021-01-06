@@ -1,6 +1,6 @@
 unit module Day6;
 
-sub day6(Str:D $file) is export {
+sub run(Str:D $file) is export {
   my @grouped-answers = $file.IO.split("\n\n", :skip-empty).map(-> $a {
     $a.split("\n", :skip-empty)>>.comb>>.Set
   });

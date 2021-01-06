@@ -31,7 +31,7 @@ my method count-bags(Map:D: Str $color) {
 }
 
 constant $SHINY_GOLD = "shiny gold";
-sub day7(Str $file) is export {
+sub run(Str $file) is export {
 
   my $rules = LuggageProcessingSpec.parse(
       $file.IO.slurp.trim-trailing,

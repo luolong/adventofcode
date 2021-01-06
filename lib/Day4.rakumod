@@ -42,7 +42,7 @@ class Passport is Map {
 }
 
 
-sub day4(Str $file) is export {
+sub run(Str $file) is export {
   my @documents = $file.IO.open.split(/ \n\n /, :skip-empty)
                 .map({ Passport.parse($_) });
 

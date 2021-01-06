@@ -9,6 +9,5 @@ unit sub MAIN(
 );
 
 my $module = $day.tc;
-require ::($module);
-my &run = ::("{$module}::EXPORT::DEFAULT::&{$day}");
+require ::($module)<&run>;
 run($file);

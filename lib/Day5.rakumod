@@ -17,7 +17,7 @@ sub to-seat-id(*@list --> Int) {
 }
 
 
-sub day5(Str:D $file) is export {
+sub run(Str:D $file) is export {
   my @seat-ids = $file.IO.lines.grep({ .Bool })
                 .map(&to-pair).map(&to-seat-id)
                 .sort;
