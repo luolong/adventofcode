@@ -82,5 +82,3 @@ sub run(Str $file) is export {
   .first({ so $_[1] });
   say "  Accumulator value after successful boot sequence is $acc2";
 }
-
-run("day8.txt".IO.resolve.path)
