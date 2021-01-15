@@ -5,8 +5,10 @@ use lib 'lib';
 
 unit sub MAIN(
   Str $day where ?(* ~~ /day \d+/),       #= solve puzzle for the given day (day1, day2, ..., day24)
-  Str $file where *.IO.f = "$day.txt",    #= file name containing this day's puzzle input
+  Str $file = "$day.txt",                 #= file name containing this day's puzzle input
 );
+
+die "Input for $day does not exist: {$file.IO.resolve.path}" unless $file.IO.f;
 
 my $module = $day.tc;
 require ::($module)<&run>;
