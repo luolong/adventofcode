@@ -16,8 +16,7 @@ sub run(Str $file) is export {
 }
 
 sub count-variants(*@chain --> Int) {
-  my @ways-to-reach of Int = 0 xx @chain.elems;
-  @ways-to-reach[0] = 1;
+  my @ways-to-reach of Int = flat (1, 0 xx @chain.elems - 1);
   for @chain.kv -> $i, $v {
     loop (my $j = $i + 1; $j < @chain && @chain[$j] - $v <= 3; $j++) {
       my $u = @ways-to-reach[$j];
