@@ -1,5 +1,5 @@
 [workspace]
 
-members = [
-    "main", "day1"
-]
+members = [ "main", "common","day*", ]
+default-members = ["main"]
+

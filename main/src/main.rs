@@ -2,11 +2,14 @@ use std::cmp::min;
 use std::path::{Path, PathBuf};
 
 use chrono::{Datelike, Local};
+use problem::{FailedTo, Fatal};
+use problem::logged::OkOrLog;
 use quicli::prelude::*;
 use simplelog::{ColorChoice, Config, TerminalMode, TermLogger};
 use structopt::StructOpt;
 use common::Solution;
 use day1::Day1;
+use day2::Day2;
 
 use crate::cli::{Cli, Selection};
 use crate::fetch::AOC_YEAR;
@@ -70,6 +73,15 @@ fn solve(day: u32, input: &Path) {
 
       let part2 = Day1::part2(input).unwrap();
       info!("Day {}, Part 2: {:?}", day, part2);
+    }
+
+    2 => {
+      let part1 = Day2::part1(input).unwrap();
+      info!("Day {}, Part 1: {:?}", day, part1);
+
+      let part2 = Day2::part2(input).unwrap();
+      info!("Day {}, Part 2: {:?}", day, part2);
+
     }
     _ => {
       warn!("Solution to day {} puzzle not implemented!", day);

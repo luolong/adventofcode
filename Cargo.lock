@@ -25,6 +25,7 @@ dependencies = [
  "common",
  "cookie_store",
  "day1",
+ "day2",
  "problem",
  "quicli",
  "reqwest",
@@ -282,6 +283,14 @@ version = "0.1.0"
 dependencies = [
  "common",
  "log",
+ "problem",
+]
+
+[[package]]
+name = "day2"
+version = "0.1.0"
+dependencies = [
+ "common",
  "problem",
 ]
 
