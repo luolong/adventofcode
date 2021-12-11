@@ -17,3 +17,4 @@ chrono = "^0.4"
 common = { path = "../common" }
 day1 = { path = "../day1" }
 day2 = { path = "../day2" }
+day3 = { path = "../day3" }

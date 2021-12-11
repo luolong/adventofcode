@@ -26,6 +26,7 @@ dependencies = [
  "cookie_store",
  "day1",
  "day2",
+ "day3",
  "problem",
  "quicli",
  "reqwest",
@@ -288,6 +289,14 @@ dependencies = [
 
 [[package]]
 name = "day2"
+version = "0.1.0"
+dependencies = [
+ "common",
+ "problem",
+]
+
+[[package]]
+name = "day3"
 version = "0.1.0"
 dependencies = [
  "common",
