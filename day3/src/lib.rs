@@ -12,13 +12,13 @@ impl Solution for Day3 {
 
   fn part1(input: &Path) -> Result<Self::Result, Self::Err> {
     let lines = read_lines(input)?;
-    let input: Vec<String> = lines.filter_map(|line| line.ok()).collect();
+    let input: Vec<String> = lines.collect();
     Ok(calculate_power_consumption(&input))
   }
 
   fn part2(input: &Path) -> Result<Self::Result, Self::Err> {
     let lines = read_lines(input)?;
-    let input: Vec<String> = lines.filter_map(|line| line.ok()).collect();
+    let input: Vec<String> = lines.collect();
     Ok(caclulate_life_support_rating(&input))
   }
 }

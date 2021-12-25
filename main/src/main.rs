@@ -2,6 +2,7 @@ use std::cmp::min;
 use std::path::{Path, PathBuf};
 
 use chrono::{Datelike, Local};
+use problem::logged::OkOrLog;
 use quicli::prelude::*;
 use simplelog::{ColorChoice, Config, TerminalMode, TermLogger};
 use structopt::StructOpt;
@@ -10,6 +11,7 @@ use common::Solution;
 use day1::Day1;
 use day2::Day2;
 use day3::Day3;
+use day4::Day4;
 
 use crate::cli::{Cli, Selection};
 use crate::fetch::AOC_YEAR;
@@ -68,30 +70,41 @@ fn main() {
 fn solve(day: u32, input: &Path) {
   match day {
     1 => {
-      let part1 = Day1::part1(input).unwrap();
-      info!("Day {}, Part 1: {:?}", day, part1);
-
-      let part2 = Day1::part2(input).unwrap();
-      info!("Day {}, Part 2: {:?}", day, part2);
+      if let Some(part1) = Day1::part1(input).ok_or_log_error() {
+        info!("Day {}, Part 1: {:?}", day, part1);
+      }
+      if let Some(part2) = Day1::part2(input).ok_or_log_error() {
+        info!("Day {}, Part 2: {:?}", day, part2);
+      }
     }
 
     2 => {
-      let part1 = Day2::part1(input).unwrap();
-      info!("Day {}, Part 1: {:?}", day, part1);
-
-      let part2 = Day2::part2(input).unwrap();
-      info!("Day {}, Part 2: {:?}", day, part2);
-
+      if let Some(part1) = Day2::part1(input).ok_or_log_error() {
+        info!("Day {}, Part 1: {:?}", day, part1);
+      }
+      if let Some(part2) = Day2::part2(input).ok_or_log_error() {
+        info!("Day {}, Part 2: {:?}", day, part2);
+      }
     }
 
     3 => {
-      let part1 = Day3::part1(input).unwrap();
-      info!("Day {}, Part 1: {:?}", day, part1);
-
-      let part2 = Day3::part2(input).unwrap();
-      info!("Day {}, Part 2: {:?}", day, part2);
-
+      if let Some(part1) = Day3::part1(input).ok_or_log_error() {
+        info!("Day {}, Part 1: {:?}", day, part1);
+      }
+      if let Some(part2) = Day3::part2(input).ok_or_log_error() {
+        info!("Day {}, Part 2: {:?}", day, part2);
+      }
     }
+
+    4 => {
+      if let Some(part1) = Day4::part1(input).ok_or_log_error() {
+        info!("Day {}, Part 1: {:?}", day, part1);
+      }
+      if let Some(part2) = Day4::part2(input).ok_or_log_error() {
+        info!("Day {}, Part 2: {:?}", day, part2);
+      }
+    }
+
     _ => {
       warn!("Solution to day {} puzzle not implemented!", day);
     }

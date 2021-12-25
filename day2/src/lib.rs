@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::str::FromStr;
 
-use problem::{FailedTo, FailedToIter, OkOrProblem, Problem, problem, ProblemWhile};
+use problem::{FailedTo, FailedToIter, OkOrProblem, Problem, problem};
 
 use common::{read_lines, Solution};
 
@@ -103,10 +103,7 @@ impl Solution for Day2 {
     let lines = read_lines(input)
       .or_failed_to("read input file");
 
-    let instructions = lines.map(|l|
-      l.problem_while("reading an instruction")
-        .and_then(|line| line.parse::<Instruction>())
-    ).or_failed_to("read input");
+    let instructions = lines.filter_map(|line| line.parse::<Instruction>().ok());
 
     let instructions: Vec<Instruction> = instructions.collect();
     let result = interpret_movement_instructions(instructions);
@@ -117,10 +114,8 @@ impl Solution for Day2 {
     let lines = read_lines(input)
       .or_failed_to("read input file");
 
-    let instructions = lines.map(|l|
-      l.problem_while("reading an instruction")
-        .and_then(|line| line.parse::<Instruction>())
-    ).or_failed_to("read input");
+    let instructions = lines.map(|line| line.parse::<Instruction>())
+      .or_failed_to("read input");
 
     let instructions: Vec<Instruction> = instructions.collect();
     let result = interpret_movement_instructions_with_aim(instructions);

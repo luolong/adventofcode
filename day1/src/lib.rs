@@ -14,8 +14,7 @@ impl Solution for Day1 {
   fn part1(input: &Path) -> Result<Self::Result, Self::Err> {
     let lines = read_lines(input)?;
     let measurements = lines.map(|line|
-      line.problem_while("reading a measurement")?
-      .parse::<u32>().problem_while("parsing a measurement")
+      line.parse::<u32>().problem_while("parsing a measurement")
     ).or_failed_to("read input");
 
     let measurements = measurements.collect();
@@ -26,8 +25,7 @@ impl Solution for Day1 {
   fn part2(input: &Path) -> Result<Self::Result, Self::Err> {
     let lines = read_lines(input)?;
     let measurements = lines.map(|line|
-      line.problem_while("reading a measurement")?
-      .parse::<u32>().problem_while("parsing a measurement")
+      line.parse::<u32>().problem_while("parsing a measurement")
     ).or_failed_to("read input");
 
     let measurements = measurements.collect();

@@ -27,6 +27,7 @@ dependencies = [
  "day1",
  "day2",
  "day3",
+ "day4",
  "problem",
  "quicli",
  "reqwest",
@@ -184,6 +185,9 @@ dependencies = [
 [[package]]
 name = "common"
 version = "0.1.0"
+dependencies = [
+ "problem",
+]
 
 [[package]]
 name = "const_fn"
@@ -301,6 +305,13 @@ version = "0.1.0"
 dependencies = [
  "common",
  "problem",
+]
+
+[[package]]
+name = "day4"
+version = "0.1.0"
+dependencies = [
+ "common",
 ]
 
 [[package]]
