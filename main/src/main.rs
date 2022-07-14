@@ -12,6 +12,7 @@ use day1::Day1;
 use day2::Day2;
 use day3::Day3;
 use day4::Day4;
+use day5::Day5;
 
 use crate::cli::{Cli, Selection};
 use crate::fetch::AOC_YEAR;
@@ -101,6 +102,16 @@ fn solve(day: u32, input: &Path) {
         info!("Day {}, Part 1: {:?}", day, part1);
       }
       if let Some(part2) = Day4::part2(input).ok_or_log_error() {
+        info!("Day {}, Part 2: {:?}", day, part2);
+      }
+    }
+
+
+    5 => {
+      if let Some(part1) = Day5::part1(input).ok_or_log_error() {
+        info!("Day {}, Part 1: {:?}", day, part1);
+      }
+      if let Some(part2) = Day5::part2(input).ok_or_log_error() {
         info!("Day {}, Part 2: {:?}", day, part2);
       }
     }
