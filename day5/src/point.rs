@@ -1,4 +1,5 @@
 use std::error;
+use std::ops::Sub;
 use std::{fmt::Display, str::FromStr};
 
 extern crate core;
@@ -7,8 +8,18 @@ extern crate core;
 pub type Dim = i32;
 
 /// A single point on the virtual canvas
-#[derive(Debug, PartialEq, Eq, PartialOrd)]
-pub struct Point(Dim, Dim);
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+pub struct Point([Dim; 2]);
+
+impl Point {
+    pub(crate) fn x(&self) -> Dim {
+        self.0[0]
+    }
+
+    pub(crate) fn y(&self) -> Dim {
+        self.0[1]
+    }
+}
 
 /// Error when point can not be parsed from a string
 impl FromStr for Point {
@@ -19,7 +30,7 @@ impl FromStr for Point {
             .and_then(|(a, b)| {
                 let dim_a: Dim = a.parse().ok()?;
                 let dim_b: Dim = b.parse().ok()?;
-                Some(Point(dim_a, dim_b))
+                Some(Point([dim_a, dim_b]))
             })
             .ok_or_else(|| Error::PointFormat(s.to_string()))
     }
@@ -27,8 +38,22 @@ impl FromStr for Point {
 
 impl Display for Point {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let Point(a, b) = self;
+        let [a, b] = self.0;
         write!(f, "{},{}", a, b)
+    }
+}
+
+impl From<(Dim, Dim)> for Point {
+    fn from(tuple: (Dim, Dim)) -> Self {
+        let (a, b) = tuple;
+        Point([a, b])
+    }
+}
+
+impl From<Point> for (Dim, Dim) {
+    fn from(pt: Point) -> Self {
+        let [x, y] = pt.0;
+        (x, y)
     }
 }
 
@@ -48,20 +73,13 @@ impl Display for Error {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
 
     use super::*;
 
-    impl From<(Dim, Dim)> for Point {
-        fn from(tuple: (Dim, Dim)) -> Self {
-            let (a, b) = tuple;
-            Point(a, b)
-        }
-    }
-
     #[test]
     fn it_can_parse_point() {
-        assert_eq!(Ok(Point(445, 187)), "445,187".parse());
+        assert_eq!(Ok(Point([445, 187])), "445,187".parse());
     }
 
     #[test]
