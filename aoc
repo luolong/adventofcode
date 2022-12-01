@@ -1,5 +1,15 @@
 #!/usr/bin/env raku
 
-sub MAIN() {
+use lib 'lib';
+
+multi MAIN('test', Int :$day = 1, Int :$part = 1) {
   say "Advent of Code 2022 solutions";
+
+  say "Day $day";
+  my $module = "Day$day";
+  require ::("$module");
+
+  #say "Part 1: {part1(lines())}";
+  #say "Part 2: {part2(lines())}";
 }
+
