@@ -1,15 +1,20 @@
 #!/usr/bin/env raku
 
-use lib 'lib';
+use lib 'lib';
+use File::Temp;
 
-multi MAIN('test', Int :$day = 1, Int :$part = 1) {
-  say "Advent of Code 2022 solutions";
+unit sub MAIN(
+  Str $day where ?(* ~~ /day \d+/),       #= solve puzzle for the given day (day1, day2, ..., day24)
+  Str $file = "$day.txt",                 #= file name containing this day's puzzle input
+);
 
-  say "Day $day";
-  my $module = "Day$day";
-  require ::("$module");
-
-  #say "Part 1: {part1(lines())}";
-  #say "Part 2: {part2(lines())}";
+my $module := $day.tc;
+when $file ~~ "-" {
+  require ::($module)<&test>;
+  test();
 }
 
+die "Input for $day does not exist: {$file.IO.resolve.path}" unless $file.IO.f;
+
+require ::($module)<&run>;
+run($file);

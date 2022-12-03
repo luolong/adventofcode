@@ -1,20 +1,24 @@
 unit module Day1;
 
-sub part1(Seq $input) is export {
-  return count-calories($input).max;
-}
-
-sub part2(Seq $input) is export {
-  return [+] count-calories($input).sort.tail(3);
-}
-
-sub count-calories(Seq $input) {
-  my @all-calories = Array[Int].new(0);
-
-  for $input.Seq -> $v {
-    when so $v { @all-calories.tail += $v.Int }
-    default { @all-calories.push(0) }
+my method get-calories(Seq:D: --> Seq:D) {
+  gather {
+    for self -> $calories {
+      state $total = 0;
+      when so $calories { $total += $calories }
+      default {
+        take $total.clone;
+        $total = 0;
+      }
+    }
   }
-
-  return @all-calories;
 }
+
+sub run(Str $file) is export {
+  say qq:to/END/;
+  Day 1, Part 1:
+    The elf is carrying { $file.IO.lines.&get-calories.max } calories.
+  Day 1, Part 2:
+    Three elves are carrying total of { [+] $file.IO.lines.&get-calories.sort.tail(3) } calories.
+  END
+}
+
