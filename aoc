@@ -1,20 +1,46 @@
 #!/usr/bin/env raku
 
+my %*SUB-MAIN-OPTS = 
+  :named-anywhere
+  ;
+
 use lib 'lib';
 use File::Temp;
 
-unit sub MAIN(
-  Str $day where ?(* ~~ /day \d+/),       #= solve puzzle for the given day (day1, day2, ..., day24)
-  Str $file = "$day.txt",                 #= file name containing this day's puzzle input
-);
+subset DAY  of Int where * ~~ 1..24;
+subset FILE of Str;
 
-my $module := $day.tc;
-when $file ~~ "-" {
-  require ::($module)<&test>;
-  test();
+multi MAIN(
+  'day',
+  DAY $day,         #= solve puzzle for the given day (1, 2, ..., 24)
+  FILE :f($file),   #= file name containing this day's puzzle input or '-' for stdin
+) {
+  my $module = "Day$day";
+  
+  my $input = $file // "day$day.txt";
+  die "Input for day $day does not exist: {$input.IO.resolve.path}" unless $input.IO.f;
+
+  require ::($module) <&solution-one &solution-two>;
+
+  say qq:to/EOF/;
+  Day $day, Part 1: { solution-one($input.IO.lines()) }
+  Day $day, Part 2: { solution-two($input.IO.lines()) }
+  EOF
 }
 
-die "Input for $day does not exist: {$file.IO.resolve.path}" unless $file.IO.f;
+multi MAIN(
+  'test', 'day',
+  DAY $day, #= Run test for the given day's puzzle
+  'part',
+  Int $part where 1|2, 
+) {
 
-require ::($module)<&run>;
-run($file);
+
+  my $module = "Day$day";
+  require ::($module);
+
+  my $solution-name = <solution-one solution-two>[$part - 1];
+  my &solution = ::($module)::EXPORT::DEFAULT::("&$solution-name");
+  say solution(lines);
+}
+
