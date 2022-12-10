@@ -37,10 +37,11 @@ multi MAIN(
 
 
   my $module = "Day$day";
-  require ::($module);
-
+  try require ::($module);
+  die "Day $day is not implemented yet?" when ::($module) ~~ Failure;
+  
   my $solution-name = <solution-one solution-two>[$part - 1];
   my &solution = ::($module)::EXPORT::DEFAULT::("&$solution-name");
-  say solution(lines);
+  say solution(lines());
 }
 
