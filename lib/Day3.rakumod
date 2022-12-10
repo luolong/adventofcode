@@ -9,7 +9,12 @@ sub items-in-both-compartments(Str:D $s --> Set:D) {
 sub solution-one(Seq:D $input) is export {
   [+] $input.grep({so $_})
             .map({items-in-both-compartments($_).keys.head})
-            .map({$priorities.index($_) + 1});
+            .map({$priorities.index($_) + 1})
 }
 
-sub solution-two(Seq:D $input) is export { "not implemented" }
+sub solution-two(Seq:D $input) is export {
+  [+] $input.grep({so $_}).List
+            .batch(3)
+            .map({([(&)] $_>>.comb).keys.head})
+            .map({$priorities.index($_) + 1})
+}
