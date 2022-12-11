@@ -13,7 +13,7 @@ sub solution-one(Seq:D $input) is export {
 }
 
 sub solution-two(Seq:D $input) is export {
-  [+] $input.grep({so $_}).List
+  [+] $input.grep({so $_})
             .batch(3)
             .map({([(&)] $_>>.comb).keys.head})
             .map({$priorities.index($_) + 1})
