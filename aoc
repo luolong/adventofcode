@@ -23,8 +23,8 @@ multi MAIN(
   require ::($module) <&solution-one &solution-two>;
 
   say qq:to/EOF/;
-  Day $day, Part 1: { solution-one($input.IO.lines()) }
-  Day $day, Part 2: { solution-two($input.IO.lines()) }
+  Day $day, Part 1: { solution-one($input.IO.open) }
+  Day $day, Part 2: { solution-two($input.IO.open) }
   EOF
 }
 
@@ -42,6 +42,6 @@ multi MAIN(
   
   my $solution-name = <solution-one solution-two>[$part - 1];
   my &solution = ::($module)::EXPORT::DEFAULT::("&$solution-name");
-  say solution(lines());
+  say solution($*IN);
 }
 

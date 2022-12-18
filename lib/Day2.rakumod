@@ -28,9 +28,9 @@ multi score-to(Hand:D $a, Result:D $r) {
 sub hand(Str:D $h --> Hand:D) { $h }
 sub result(Str:D $r --> Result:D) { $r }
 
-sub solution-one(Seq:D $input) is export {
+sub solution-one(IO::Handle:D $input) is export {
   constant %code = (<A B C> Z @Hand), (<X Y Z> Z @Hand);
-  [+] $input.map: -> $line {
+  [+] $input.lines.map: -> $line {
     if so $line {
       my ($a, $b) = $line.split(' ').map(-> $s {%code{$s}}).map: &hand;
       score-with(hand($a), hand($b)) 
@@ -38,9 +38,9 @@ sub solution-one(Seq:D $input) is export {
   }
 }
 
-sub solution-two(Seq:D $input) is export {
+sub solution-two(IO::Handle:D $input) is export {
   constant %code = (<A B C> Z @Hand), (<X Y Z> Z @Result);
-  [+] $input.map: -> $line {
+  [+] $input.lines.map: -> $line {
     if so $line {
       my ($a, $b) = $line.split(' ').map: -> $s {%code{$s}};
       score-to(hand($a), result($b))

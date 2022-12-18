@@ -10,6 +10,6 @@ my method get-calories(Seq:D: --> Seq:D) {
   }
 }
 
-sub solution-one(Seq:D $input) is export { $input.&get-calories.max }
-sub solution-two(Seq:D $input) is export { [+] $input.&get-calories.sort.tail(3) }
+sub solution-one(IO::Handle:D $input) is export { $input.lines.&get-calories.max }
+sub solution-two(IO::Handle:D $input) is export { [+] $input.lines.&get-calories.sort.tail(3) }
 
