@@ -1,66 +1,62 @@
 unit module Day7;
 
-use Grammar::Tracer;
+grammar Filesystem {
+    token TOP   { [ <input> | <output> | <.ws> ] * %% <.lf> }
+    rule input  { '$' <command> }
+    rule output { <dir> | <file> }
 
-class Fs is Associative {
-  has     %!fs   is built(False) handles('sort') = '/' => { type => 'dir', size => 0 };
-  has Str $!cwd  is built(False);
+    proto token command         {*}
+          token command:sym<cd> { <sym> <.ws> <arg> }
+          token command:sym<ls> { <sym> }
+    
+    proto token arg             {*}
+          token arg:sym<root>   { '/' }
+          token arg:sym<parent> { '..' }
+          token arg:sym<*>      { <name> }
+    
+    rule dir   { dir <name> }
+    rule file  { <size> <name> }
+    
+    token name { \S+ }
+    token size { \d+ }
 
-  our sub load-from-input(@lines --> Fs:D) {
-    my %fs := Fs.new;
-    for @lines {
-      when m/^ '$' <.ws> cd <.ws> $<name> = [\S+] /    { %fs.cd: $<name>.Str }
-      when m/^ '$' <.ws> ls /                          {  }
-      when m/^ dir <.ws> $<name> = [\S+] /             { %fs.ls-dir: $<name>.Str }
-      when m/^ $<size> = [\S+] <.ws> $<name> = [\S+] / { %fs.ls-file: $<size>.Int, $<name>.Str }
-      default { * }
-    }
-    %fs
-  }
-
-  method cd(Str:D $path) {
-    given $path {
-      when '/'  { $!cwd = '/' }
-      when '..' { $!cwd =  $!cwd.subst(/\/<-[/]>+\/?$/, '/') }
-      default   { $!cwd ~= "{$path}/" }
-    }
-  }
-
-  method ls-dir(Str $name) {
-    my $path = $!cwd ~ "{$name}/";
-    if not %!fs{$path}:exists {
-      %!fs{$path} = { type => 'dir', size => 0 }
-    }
-  }
-
-  method ls-file(Int $size, Str $name) {
-    my $parent = $!cwd;
-    my $path = $parent ~ "{$name}";
-    %!fs{$path} = { type=>'file', size=>$size };
-    for (%!fs<>:k).grep({.ends-with('/') and $path.starts-with($_)}) {
-      %!fs{$_}<size> += $size
-    }
-  }
-
-  method free() {
-    70000000 - %!fs</><size>
-  }
-
-  method gist(Fs:D: --> Str) {
-    %!fs.sort.map({ 
-      my @path = $_.key.split('/', :skip-empty);
-      "{'  ' x @path.elems}- {@path.tail // '/'} ({$_.value<type>}, size={$_.value<size>})"
-    }).join("\n")
-  }
+    token lf  { \n }
+    token ws  { \h* }
 }
 
+class Directories {
+  has     %!dirs is built(False) = { '/' => 0 };
+  has Str $!cwd  is built(False) = '';
+
+  method name($/) { make $/.Str }
+  method size($/) { make $/.Int }
+  
+  method full-path(Str $name)   { $!cwd.subst: / \/? $/, "/$name" }
+  method base-name() { my $b = $!cwd.subst(/ \/ <-[/]>+ $/, ''); $b or '/' }
+
+  method arg:sym<root>($/)   { make '/' }
+  method arg:sym<parent>($/) { make self.base-name }
+  method arg:sym<*>($/)      { make self.full-path: $<name>.made }
+
+  method command:sym<cd>($/) { $!cwd = $<arg>.made }
+
+  method dir($/)  { my $name = self.full-path($<name>.made); %!dirs{$name} = 0 }
+  
+  method file($/) {
+    my ($name, $size) = ($!cwd, $<size>.made);
+    for %!dirs.keys.grep({$name.starts-with: $_}) { 
+      %!dirs{$_} += $size
+    }
+  }
+
+  method TOP($/) { make {sizes=>%!dirs.values, free=>70000000 - %!dirs</> } }
+}
 
 sub solution-one(IO::Handle:D $input) is export {
-  my %fs := Fs::load-from-input($input.lines);
-  [+] %fs.sort>>.value.grep({ $_<type> ~~ 'dir' and $_<size> <= 100000 })>><size>
+  [+] Filesystem.parse($input.slurp, actions => Directories.new).made<sizes>.grep({$_ <= 100000})
 }
 
 sub solution-two(IO::Handle:D $input) is export {
-  my %fs := Fs::load-from-input($input.lines);
-  %fs.sort>>.value.grep({ $_<type> ~~ 'dir' and $_<size> >= (30000000 - %fs.free) })>><size>.min
+  my %fs = Filesystem.parse($input.slurp, actions => Directories.new).made;
+  %fs<sizes>.grep({$_ >= (30000000 - %fs<free>)}).min
 }
