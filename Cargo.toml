@@ -1,0 +1,24 @@
+[workspace]
+members = ["crates/*"]
+
+[workspace.package]
+version = "2023.12.1"
+edition = "2021"
+authors = ["Roland Tepp <roland@tepp.info>"]
+
+[workspace.dependencies]
+atty = "0.2"
+thiserror = "1"
+
+[package]
+name = "aoc"
+description = "Advent of Code 2023"
+version.workspace = true
+edition.workspace=true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = {version = "4", features = ["cargo"]}
+anyhow = "1.0.75"
+thiserror.workspace = true
