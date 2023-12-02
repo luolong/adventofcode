@@ -155,11 +155,12 @@ fn main() -> Result<()> {
             Set(max(a.0, b.0), max(a.1, b.1), max(a.2, b.2))
         });
 
-        if max.0 <= 12 && max.1 <= 13 && max.2 <= 14 {
+        let Set(red, green, blue) = max;
+        if red <= 12 && green <= 13 && blue <= 14 {
             part1 += game.id;
         }
 
-        let power = max.0 * max.1 * max.2;
+        let power = red * green * blue;
         part2 += power;
     }
 
