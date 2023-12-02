@@ -1,3 +1,4 @@
+use std::cmp::max;
 use std::fmt::{Display, Formatter};
 use std::io::{BufRead, BufReader};
 use std::iter::zip;
@@ -130,7 +131,8 @@ fn main() -> Result<()> {
         ))
     };
 
-    let mut result = 0u32;
+    let mut part1 = 0u32;
+    let mut part2 = 0u32;
     for line in reader.lines() {
         let line = line.context("reading line of input")?;
         if line.is_empty() {
@@ -138,11 +140,20 @@ fn main() -> Result<()> {
         }
 
         let game: Game = line.parse()?;
-        if !game.sets.iter().any(|s| s.0 > 12 || s.1 > 13 || s.2 > 14) {
-            result += game.id;
+        let max = game.sets.iter().fold(Set::default(), |a, b| {
+            Set(max(a.0, b.0), max(a.1, b.1), max(a.2, b.2))
+        });
+
+        if max.0 > 12 || max.1 > 13 || max.2 > 14 {
+            part1 += game.id;
         }
+
+        let power = max.0 * max.1 * max.2;
+        part2 += power;
     }
 
-    println!("Day2, Part 1: {result}");
+    println!("Day2, Part 1: {part1}");
+    println!("Day2, Part 2: {part2}");
+
     Ok(())
 }
