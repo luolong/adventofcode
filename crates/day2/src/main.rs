@@ -1,10 +1,10 @@
+use std::{env, fs, io};
 use std::cmp::max;
 use std::fmt::{Display, Formatter};
 use std::io::{BufRead, BufReader};
 use std::iter::zip;
 use std::ops::AddAssign;
 use std::str::FromStr;
-use std::{env, fs, io};
 
 use anyhow::{anyhow, Context, Result};
 use atty::Stream;
@@ -25,6 +25,37 @@ impl AddAssign for Set {
         if rhs.2 > 0 {
             self.2 += rhs.2
         }
+    }
+}
+
+impl FromStr for Set {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut set: Set = Default::default();
+
+        let unparsed_set = s.trim()
+            .split_terminator(',')
+            .map(|s| s.trim().to_string())
+            .collect::<Vec<String>>();
+
+        for cubes in unparsed_set {
+            let (count, color) = cubes
+                .split_once(' ')
+                .with_context(|| format!("Parsing '{cubes}' as set"))?;
+
+            let count: u32 = count
+                .parse()
+                .with_context(|| format!("Not a number: {}", count))?;
+
+            set += match color {
+                "red" => Ok(Set(count, 0, 0)),
+                "green" => Ok(Set(0, count, 0)),
+                "blue" => Ok(Set(0, 0, count)),
+                _ => Err(anyhow!("Unrecognized color: '{color}'")),
+            }?;
+        }
+        Ok(set)
     }
 }
 
@@ -60,30 +91,12 @@ impl FromStr for Game {
         let name = name.trim().to_string();
 
         let mut sets: Vec<Set> = Vec::with_capacity(3);
-        let segments = rest.split_terminator(';').map(|s| {
-            s.trim()
-                .split_terminator(',')
-                .map(|s| s.trim().to_string())
-                .collect::<Vec<String>>()
-        });
+        let segments = rest.split_terminator(';');
 
         for unparsed_set in segments {
-            let mut set: Set = Default::default();
-            for cubes in unparsed_set.iter() {
-                let (count, color) = cubes
-                    .split_once(' ')
-                    .with_context(|| format!("Parsing '{cubes}' as set"))?;
-                let count: u32 = count
-                    .parse()
-                    .with_context(|| format!("Not a number: {}", count))?;
+            let set: Set = unparsed_set.parse()
+                .with_context(|| format!("Parsing game subset: {unparsed_set}"))?;
 
-                set += match color {
-                    "red" => Ok(Set(count, 0, 0)),
-                    "green" => Ok(Set(0, count, 0)),
-                    "blue" => Ok(Set(0, 0, count)),
-                    _ => Err(anyhow!("Unrecognized color: '{color}'")),
-                }?;
-            }
             sets.push(set);
         }
 
@@ -122,10 +135,8 @@ fn main() -> Result<()> {
         .unwrap_or_else(|| DEFAULT_FILENAME.to_string());
 
     let reader: Box<dyn BufRead> = if filename == "-" && atty::is(Stream::Stdin) {
-        eprintln!("Reading from stdin");
         Box::new(BufReader::new(io::stdin()))
     } else {
-        eprintln!("Reading from {filename}");
         Box::new(BufReader::new(
             fs::File::open(&filename).with_context(|| format!("Reading from {filename:?}"))?,
         ))
@@ -144,7 +155,7 @@ fn main() -> Result<()> {
             Set(max(a.0, b.0), max(a.1, b.1), max(a.2, b.2))
         });
 
-        if max.0 > 12 || max.1 > 13 || max.2 > 14 {
+        if max.0 <= 12 && max.1 <= 13 && max.2 <= 14 {
             part1 += game.id;
         }
 
