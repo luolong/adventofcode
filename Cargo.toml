@@ -9,6 +9,8 @@ authors = ["Roland Tepp <roland@tepp.info>"]
 [workspace.dependencies]
 atty = "0.2"
 thiserror = "1"
+anyhow = "1.0.75"
+
 
 [package]
 name = "aoc"
@@ -20,5 +22,5 @@ edition.workspace=true
 
 [dependencies]
 clap = {version = "4", features = ["cargo"]}
-anyhow = "1.0.75"
 thiserror.workspace = true
+anyhow.workspace = true
