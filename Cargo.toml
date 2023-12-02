@@ -1,8 +1,10 @@
 [workspace]
 members = ["crates/*"]
+default-members = ["crates/*"]
+
 
 [workspace.package]
-version = "2023.12.1"
+version = "2023.12.2"
 edition = "2021"
 authors = ["Roland Tepp <roland@tepp.info>"]
 
