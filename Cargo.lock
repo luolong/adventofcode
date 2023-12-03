@@ -125,6 +125,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "day3"
+version = "2023.12.2"
+dependencies = [
+ "anyhow",
+ "atty",
+]
+
+[[package]]
 name = "hermit-abi"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
