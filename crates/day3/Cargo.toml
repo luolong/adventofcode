@@ -9,3 +9,5 @@ authors.workspace = true
 [dependencies]
 anyhow.workspace = true
 atty.workspace = true
+itertools.workspace = true
+log.workspace = true
