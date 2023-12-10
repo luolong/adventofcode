@@ -1,6 +1,4 @@
-use std::cmp::min;
 use std::io::{BufRead, BufReader};
-use std::ops::RangeInclusive;
 use std::{env, fs, io};
 
 use crate::Char::{Blank, Digit, Symbol};
@@ -208,66 +206,4 @@ fn parse_number(line: &String, start: Option<usize>, end: usize) -> Option<u32> 
         .and_then(|it| line.get(it..end))
         .and_then(|s| s.parse::<u32>().ok());
     num
-}
-
-fn parse_slice(s: &str, range: RangeInclusive<usize>) -> Option<u128> {
-    let slice: &str = s.get(range)?;
-    slice.parse().ok()
-}
-
-fn find_nearby_numbers(gears: &Vec<usize>, line: &str) -> Vec<u128> {
-    if gears.is_empty() {
-        return Vec::new();
-    }
-
-    let mut gears = gears.iter();
-    let Some(first_gear) = gears.next() else {
-        return Vec::new();
-    };
-
-    let first_start = if *first_gear > 0 {
-        *first_gear - 1
-    } else {
-        *first_gear
-    };
-    let first_range = first_start..min(line.len(), first_start + 3);
-    println!("{}", line.get(first_range).unwrap_or_default());
-
-    let mut numbers: Vec<u128> = Vec::with_capacity(2 * gears.len());
-
-    let mut gear = first_gear;
-    let mut range: Option<RangeInclusive<usize>> = None;
-
-    for (i, c) in line.char_indices() {
-        if c.is_ascii_digit() {
-            if let Some(r) = &range {
-                range = Some(*r.start()..=i);
-            } else {
-                range = Some(i..=i);
-            }
-            continue;
-        }
-
-        if !c.is_ascii_digit() {
-            if let Some(r) = &range {
-                let (start, end) = r.clone().into_inner();
-                let start_bound = if start > 0 { start - 1 } else { start };
-                if start_bound <= *gear && *gear <= end + 1 {
-                    if let Some(number) = parse_slice(line, start..=end) {
-                        numbers.push(number);
-                    }
-                }
-                range = None;
-            }
-        }
-
-        if i > *gear && i.abs_diff(*gear) > 1 {
-            let Some(next_gear) = gears.next() else {
-                break;
-            };
-            gear = next_gear;
-        }
-    }
-
-    numbers
 }
