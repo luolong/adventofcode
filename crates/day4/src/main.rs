@@ -24,7 +24,7 @@ fn main() -> Result<()> {
 
     let mut part1: u32 = 0;
 
-    let mut lines: Vec<String> = reader.lines().filter_map(|line| line.ok()).collect();
+    let lines: Vec<String> = reader.lines().filter_map(|line| line.ok()).collect();
     let mut multipliers: Vec<usize> = Vec::with_capacity(lines.len());
     multipliers.resize(lines.len(), 1usize);
 
