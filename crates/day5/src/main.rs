@@ -1,5 +1,6 @@
 use std::fmt::{Debug, Formatter};
 use std::io::{BufRead, BufReader, Lines};
+use std::ops::Range;
 use std::str::FromStr;
 use std::{env, fs, io, usize};
 
@@ -13,24 +14,6 @@ struct RangeMapEntry {
     source_range_start: usize,
     destination_range_start: usize,
     range_length: usize,
-}
-
-impl RangeMapEntry {
-    pub fn get(&self, key: usize) -> Option<usize> {
-        let RangeMapEntry {
-            source_range_start,
-            destination_range_start,
-            range_length,
-        } = *self;
-
-        let source_range_start_end = source_range_start + range_length;
-        if (source_range_start..source_range_start_end).contains(&key) {
-            let delta = source_range_start.abs_diff(key);
-            Some(destination_range_start + delta)
-        } else {
-            None
-        }
-    }
 }
 
 impl FromStr for RangeMapEntry {
@@ -69,6 +52,252 @@ impl Debug for RangeMapEntry {
     }
 }
 
+trait Remap: Copy + Debug {
+    /// Remaps this item based on the provided  range map entry
+    ///
+    /// Should return a copy of the item
+    fn remap(&self, entry: &RangeMapEntry) -> Vec<Self>;
+}
+
+trait Bounds {
+    fn first(&self) -> usize;
+    fn last(&self) -> usize;
+
+    fn to_bounds(&self) -> (usize, usize) {
+        (self.first(), self.last())
+    }
+
+    fn is_before_first(&self, i: usize) -> bool {
+        i < self.first()
+    }
+
+    fn is_after_last(&self, i: usize) -> bool {
+        self.last() < i
+    }
+}
+
+impl Bounds for RangeMapEntry {
+    fn first(&self) -> usize {
+        self.source_range_start
+    }
+
+    fn last(&self) -> usize {
+        self.source_range_start + self.range_length
+    }
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
+struct SeedRange(usize, usize);
+
+impl From<&[usize]> for SeedRange {
+    fn from(value: &[usize]) -> Self {
+        let start = value[0];
+        let end = start + value[1];
+        SeedRange::from(start..end)
+    }
+}
+impl From<Range<usize>> for SeedRange {
+    fn from(value: Range<usize>) -> Self {
+        let Range { start, end } = value;
+        SeedRange(start, end)
+    }
+}
+
+impl From<SeedRange> for Range<usize> {
+    fn from(value: SeedRange) -> Self {
+        let SeedRange(start, end) = value;
+        start..end
+    }
+}
+
+impl Remap for usize {
+    fn remap(&self, entry: &RangeMapEntry) -> Vec<Self> {
+        let RangeMapEntry {
+            destination_range_start,
+            source_range_start,
+            range_length,
+        } = *entry;
+
+        if (source_range_start..(source_range_start + range_length)).contains(self) {
+            let diff = self.abs_diff(source_range_start);
+            return vec![destination_range_start + diff];
+        }
+
+        vec![*self]
+    }
+}
+
+impl Bounds for usize {
+    fn first(&self) -> usize {
+        *self
+    }
+
+    fn last(&self) -> usize {
+        *self
+    }
+}
+
+impl Bounds for SeedRange {
+    fn first(&self) -> usize {
+        self.0
+    }
+
+    fn last(&self) -> usize {
+        self.1 - 1
+    }
+}
+
+impl Remap for SeedRange {
+    fn remap(&self, entry: &RangeMapEntry) -> Vec<Self> {
+        let RangeMapEntry {
+            destination_range_start,
+            source_range_start,
+            range_length,
+        } = *entry;
+
+        let range = Range::from(*self);
+        let source_range_end = source_range_start + range_length;
+
+        if range.contains(&source_range_start) || range.contains(&source_range_end) {
+            if range.start < source_range_start {
+                let tail_len = source_range_start.abs_diff(range.end);
+                vec![
+                    SeedRange::from(range.start..source_range_start),
+                    SeedRange::from(destination_range_start..(destination_range_start + tail_len)),
+                ]
+            } else if range.end > source_range_end {
+                let offset = source_range_start.abs_diff(range.start);
+                let head_start = destination_range_start + offset;
+                let head_end = destination_range_start + range_length;
+                vec![
+                    SeedRange::from(head_start..head_end),
+                    SeedRange::from(source_range_end..range.end),
+                ]
+            } else {
+                let start_diff = source_range_start.abs_diff(range.start);
+                let end_diff = source_range_start.abs_diff(range.end);
+                let destination_start = destination_range_start + start_diff;
+                let destination_end = destination_range_start + end_diff;
+                vec![SeedRange::from(destination_start..destination_end)]
+            }
+        } else if range.start < source_range_start && range.end > source_range_end {
+            vec![
+                SeedRange::from(range.start..source_range_start),
+                SeedRange::from(destination_range_start..destination_range_start + range_length),
+                SeedRange::from(source_range_end..range.end),
+            ]
+        } else {
+            vec![*self]
+        }
+    }
+}
+
+struct Items<T>
+where
+    T: Sized + Ord + Remap + Debug,
+{
+    items: Vec<T>,
+}
+
+impl<T> Bounds for Items<T>
+where
+    T: Bounds + Remap + Ord + Debug,
+{
+    fn first(&self) -> usize {
+        self.items[0].first()
+    }
+
+    fn last(&self) -> usize {
+        let last = self.items.len() - 1;
+        self.items[last].last()
+    }
+}
+
+impl FromStr for Items<usize> {
+    type Err = Error;
+
+    fn from_str(line: &str) -> Result<Self, Self::Err> {
+        let line = line
+            .strip_prefix("seeds: ")
+            .context("stripping prefix before seeds")?;
+
+        let mut items: Vec<usize> = line
+            .split_ascii_whitespace()
+            .map(|s| s.parse::<usize>())
+            .try_collect()
+            .context("Parsing numbers")?;
+
+        items.sort();
+        Ok(Items { items })
+    }
+}
+
+impl FromStr for Items<SeedRange> {
+    type Err = Error;
+
+    fn from_str(line: &str) -> std::result::Result<Self, Self::Err> {
+        let line = line
+            .strip_prefix("seeds: ")
+            .context("Stripping prefix before seed ranges");
+
+        let numbers: Vec<usize> = line
+            .unwrap()
+            .split_ascii_whitespace()
+            .map(|s| s.parse::<usize>())
+            .try_collect()
+            .context("Parsing numbers")?;
+
+        let mut items: Vec<SeedRange> = numbers.chunks_exact(2).map_into().collect_vec();
+
+        items.sort();
+        Ok(Items { items })
+    }
+}
+
+impl<T> Items<T>
+where
+    T: Bounds + Remap + Ord + Debug,
+{
+    pub fn remap_using(&mut self, entry: &RangeMapEntry) -> Result<()> {
+        let (first, last) = self.to_bounds();
+        let (start, end) = entry.to_bounds();
+
+        if end < first || start > last {
+            if cfg!(debug_assertions) {
+                if end < first {
+                    eprintln!("∅ Out of range: {start}–{end} < {first}");
+                }
+                if start > last {
+                    eprintln!("∅ Out of range: {last} < {start}–{end}");
+                }
+            }
+            return Ok(());
+        }
+
+        let sources = Vec::from_iter(self.items.iter().cloned());
+        let pp1 = sources.partition_point(|&s| s.first() <= start);
+        let pp2 = sources.partition_point(|&s| s.last() < end);
+        if pp1 == pp2 {
+            if cfg!(debug_assertions) {
+                eprintln!("∅ No matching indices: {pp1}..{pp2} ({start}/{first}  {last}/{end})",);
+            }
+            return Ok(());
+        }
+
+        for i in pp1..pp2 {
+            let source = sources[i];
+            let destinations = source.remap(entry);
+            if cfg!(debug_assertions) {
+                eprintln!("❱❱ Mapping {source:?} to {destinations:?}");
+            }
+            (&mut self.items).splice(i..=i, destinations);
+        }
+
+        self.items.sort();
+        Ok(())
+    }
+}
+
 fn read_until_header(lines: &mut Lines<Box<dyn BufRead>>, expected_header: &str) -> Result<()> {
     while let Some(line) = lines.next() {
         let Ok(line) = line else {
@@ -76,7 +305,9 @@ fn read_until_header(lines: &mut Lines<Box<dyn BufRead>>, expected_header: &str)
         };
 
         if line == expected_header {
-            //eprintln!("\n{line}");
+            if cfg!(debug_assertions) {
+                eprintln!("\n{line}");
+            }
             return Ok(());
         }
     }
@@ -84,11 +315,14 @@ fn read_until_header(lines: &mut Lines<Box<dyn BufRead>>, expected_header: &str)
     bail!("Failed to find header: {expected_header}");
 }
 
-fn read_and_map_values(
+fn while_entries(
     lines: &mut Lines<Box<dyn BufRead>>,
-    sources: Vec<usize>,
-) -> Result<Vec<usize>> {
-    let mut destinations = sources.clone();
+    header_line: &str,
+    mut f: impl FnMut(&RangeMapEntry) -> Result<()>,
+) -> Result<()> {
+    read_until_header(lines, header_line)
+        .with_context(|| format!("Reading header {header_line}"))?;
+
     while let Some(line) = lines.next() {
         let line = line.context("Reading a line of input")?;
         if line.is_empty() {
@@ -98,34 +332,14 @@ fn read_and_map_values(
         let entry = line
             .parse::<RangeMapEntry>()
             .context("Parsing the mapping entry")?;
-        //eprintln!("❱ {entry:?}");
-
-        let start = entry.source_range_start;
-        let end = start + entry.range_length;
-
-        let (&first, &last) = (sources.first().unwrap(), sources.last().unwrap());
-        if end < first && start > last {
-            //eprintln!("❱∅ Out of range: {entry:?} <=> [{first}, {last}]",);
-            continue;
+        if cfg!(debug_assertions) {
+            eprintln!("❱ {entry:?}");
         }
 
-        let pp1 = sources.partition_point(|&s| s <= start);
-        let pp2 = sources.partition_point(|&s| s < end);
-        if pp1 == pp2 {
-            //eprintln!("❱∅ No matching indices: {pp1}..{pp2} ({start}/{first}  {last}/{end})",);
-            continue;
-        }
-
-        for i in pp1..pp2 {
-            let source = sources[i];
-            if let Some(destination) = entry.get(source) {
-                //eprintln!("❱❱ {source} → {destination} ({entry:?})",);
-                destinations[i] = destination;
-            }
-        }
+        f(&entry)?;
     }
-    destinations.sort();
-    Ok(destinations)
+
+    Ok(())
 }
 
 fn main() -> Result<()> {
@@ -147,95 +361,85 @@ fn main() -> Result<()> {
         bail!("Expected list of seeds");
     };
 
-    let seeds = seeds.context("Reading first line of input")?;
-    let seeds = seeds
-        .strip_prefix("seeds: ")
-        .with_context(|| format!("Stripping prefix from line «{seeds}»"))?;
-    let seeds: Result<Vec<usize>> = seeds
-        .split_whitespace()
-        .map(|s| {
-            s.parse::<usize>()
-                .with_context(|| format!("Parsing seed number: {s}"))
-        })
-        .collect::<Result<Vec<usize>>>()
-        .context("Parsing seed numbers");
-    let mut seeds = seeds.unwrap();
-    seeds.sort();
+    let first_line = seeds.context("Reading first line of input")?;
+    let mut seeds: Items<usize> = first_line.parse().context("Parsing seeds")?;
+    let mut _seed_ranges: Items<SeedRange> = first_line.parse().context("Parsing seed ranges")?;
 
-    /*    let mut debug: Vec<String> = Vec::with_capacity(seeds.len());
-        seeds
-            .iter()
-            .map(|seed| format!("Seed {seed:?}"))
-            .for_each(|s| debug.push(s));
-    */
-    read_until_header(&mut lines, "seed-to-soil map:")?;
-    let soils = read_and_map_values(&mut lines, seeds) //
-        .context("Parsing seeds-to-soil map")?;
+    if cfg!(debug_assertions) {
+        eprintln!("Seeds: {:?}", seeds.items);
+    }
 
-    /*    debug
-            .iter_mut()
-            .zip(soils.iter())
-            .for_each(|(dbg, soil)| dbg.push_str(&format!(", soil {soil}")));
-    */
-    read_until_header(&mut lines, "soil-to-fertilizer map:")?;
-    let fertilizers = read_and_map_values(&mut lines, soils) //
-        .context("Parsing soil-to-fertilizer map")?;
+    while_entries(&mut lines, "seed-to-soil map:", |entry| {
+        seeds.remap_using(&entry)?;
+        Ok(())
+    })
+    .context("Mapping seeds to soil")?;
 
-    /*    debug
-            .iter_mut()
-            .zip(fertilizers.iter())
-            .for_each(|(dbg, fertilizer)| dbg.push_str(&format!(", fertilizer {fertilizer}")));
-    */
-    read_until_header(&mut lines, "fertilizer-to-water map:")?;
-    let water = read_and_map_values(&mut lines, fertilizers) //
-        .context("Parsing fertilizer-to-water map")?;
+    if cfg!(debug_assertions) {
+        eprintln!("Soil: {:?}", seeds.items);
+    }
 
-    /*    debug
-            .iter_mut()
-            .zip(water.iter())
-            .for_each(|(dbg, water)| dbg.push_str(&format!(", water {water}")));
-    */
-    read_until_header(&mut lines, "water-to-light map:")?;
-    let light = read_and_map_values(&mut lines, water) //
-        .context("Parsing water-to-light map")?;
+    while_entries(&mut lines, "soil-to-fertilizer map:", |entry| {
+        seeds.remap_using(&entry)?;
+        Ok(())
+    })
+    .context("Mapping soil to fertilizer")?;
 
-    /*    debug
-            .iter_mut()
-            .zip(light.iter())
-            .for_each(|(dbg, light)| dbg.push_str(&format!(", light {light}")));
-    */
-    read_until_header(&mut lines, "light-to-temperature map:")?;
-    let temperatures = read_and_map_values(&mut lines, light) //
-        .context("Parsing light-to-temperature map")?;
+    if cfg!(debug_assertions) {
+        eprintln!("Fertilizer: {:?}", seeds.items);
+    }
 
-    /*    debug
-            .iter_mut()
-            .zip(temperatures.iter())
-            .for_each(|(dbg, temperature)| dbg.push_str(&format!(", temperature {temperature}")));
-    */
-    read_until_header(&mut lines, "temperature-to-humidity map:")?;
-    let humidity = read_and_map_values(&mut lines, temperatures) //
-        .context("Parsing temperature-to-humidity map")?;
+    while_entries(&mut lines, "fertilizer-to-water map:", |entry| {
+        seeds.remap_using(&entry)?;
+        Ok(())
+    })
+    .context("Mapping fertilizer to water")?;
 
-    /*    debug
-            .iter_mut()
-            .zip(humidity.iter())
-            .for_each(|(dbg, humidity)| dbg.push_str(&format!(", humidity {humidity}")));
-    */
-    read_until_header(&mut lines, "humidity-to-location map:")?;
-    let locations = read_and_map_values(&mut lines, humidity) //
-        .context("Parsing humidity-to-location map")?;
+    if cfg!(debug_assertions) {
+        eprintln!("Water: {:?}", seeds.items);
+    }
 
-    /*    debug
-            .iter_mut()
-            .zip(locations.iter())
-            .for_each(|(dbg, location)| dbg.push_str(&format!(", location {location}.")));
-    */
-    /*    for dbg in debug {
-            eprintln!("* {dbg}");
-        }
-    */
-    let closest_location = locations[0];
+    while_entries(&mut lines, "water-to-light map:", |entry| {
+        seeds.remap_using(&entry)?;
+        Ok(())
+    })
+    .context("Mapping water to light")?;
+
+    if cfg!(debug_assertions) {
+        eprintln!("Light: {:?}", seeds.items);
+    }
+
+    while_entries(&mut lines, "light-to-temperature map:", |entry| {
+        seeds.remap_using(&entry)?;
+        Ok(())
+    })
+    .context("Mapping light to temperature")?;
+
+    if cfg!(debug_assertions) {
+        eprintln!("Temperature: {:?}", seeds.items);
+    }
+
+    while_entries(&mut lines, "temperature-to-humidity map:", |entry| {
+        seeds.remap_using(&entry)?;
+        Ok(())
+    })
+    .context("Mapping temperature to humidity")?;
+
+    if cfg!(debug_assertions) {
+        eprintln!("Humidity: {:?}", seeds.items);
+    }
+
+    while_entries(&mut lines, "humidity-to-location map:", |entry| {
+        seeds.remap_using(&entry)?;
+        Ok(())
+    })
+    .context("Mapping humidity to location")?;
+
+    if cfg!(debug_assertions) {
+        eprintln!("Location: {:?}", seeds.items);
+    }
+
+    let closest_location = seeds.first();
     println!("Day 5, part 1: {closest_location}");
 
     Ok(())
