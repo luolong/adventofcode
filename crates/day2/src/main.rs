@@ -1,13 +1,11 @@
-use std::{env, fs, io};
 use std::cmp::max;
 use std::fmt::{Display, Formatter};
-use std::io::{BufRead, BufReader};
+use std::io::BufRead;
 use std::iter::zip;
 use std::ops::AddAssign;
 use std::str::FromStr;
 
 use anyhow::{anyhow, Context, Result};
-use atty::Stream;
 
 const DEFAULT_FILENAME: &str = "day2.txt";
 
@@ -34,7 +32,8 @@ impl FromStr for Set {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut set: Set = Default::default();
 
-        let unparsed_set = s.trim()
+        let unparsed_set = s
+            .trim()
             .split_terminator(',')
             .map(|s| s.trim().to_string())
             .collect::<Vec<String>>();
@@ -69,7 +68,7 @@ impl Display for Set {
             write!(f, "{count} {color}")?;
         }
 
-        while let Some((count, color)) = cubes.next() {
+        for (count, color) in cubes {
             write!(f, ", {count} {color}")?;
         }
 
@@ -94,7 +93,8 @@ impl FromStr for Game {
         let segments = rest.split_terminator(';');
 
         for unparsed_set in segments {
-            let set: Set = unparsed_set.parse()
+            let set: Set = unparsed_set
+                .parse()
                 .with_context(|| format!("Parsing game subset: {unparsed_set}"))?;
 
             sets.push(set);
@@ -120,7 +120,7 @@ impl Display for Game {
             write!(f, "{set}")?;
         }
 
-        while let Some(set) = sets.next() {
+        for set in sets {
             write!(f, "; {set}")?;
         }
 
@@ -129,18 +129,7 @@ impl Display for Game {
 }
 
 fn main() -> Result<()> {
-    let filename = env::args()
-        .skip(1)
-        .next()
-        .unwrap_or_else(|| DEFAULT_FILENAME.to_string());
-
-    let reader: Box<dyn BufRead> = if filename == "-" && atty::is(Stream::Stdin) {
-        Box::new(BufReader::new(io::stdin()))
-    } else {
-        Box::new(BufReader::new(
-            fs::File::open(&filename).with_context(|| format!("Reading from {filename:?}"))?,
-        ))
-    };
+    let reader = common::get_reader(DEFAULT_FILENAME)?;
 
     let mut part1 = 0u32;
     let mut part2 = 0u32;

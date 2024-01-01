@@ -1,17 +1,12 @@
-use std::io::{BufRead, BufReader};
-use std::{env, fs, io};
-
-use atty::Stream;
+use anyhow::Result;
+use std::io::BufRead;
 
 const DEFAULT_FILENAME: &str = "day1.txt";
 
 fn parse_calibration_value(s: &str) -> u32 {
     let digits: Vec<char> = s
         .char_indices()
-        .filter_map(|(_, c)| match "0123456789".find(c) {
-            Some(_) => Some(c),
-            None => None,
-        })
+        .filter_map(|(_, c)| "0123456789".find(c).map(|_| c))
         .collect();
 
     if digits.is_empty() {
@@ -28,7 +23,7 @@ fn parse_correct_calibration_value(s: &str) -> u32 {
     let digits: Vec<char> = s
         .char_indices()
         .filter_map(|(i, c)| {
-            if let Some(_) = "0123456789".find(c) {
+            if "0123456789".find(c).is_some() {
                 Some(c)
             } else {
                 match c {
@@ -53,28 +48,20 @@ fn parse_correct_calibration_value(s: &str) -> u32 {
     format!("{first_digit}{last_digit}").parse().unwrap()
 }
 
-fn main() {
-    let filename = env::args()
-        .skip(1)
-        .next()
-        .unwrap_or_else(|| DEFAULT_FILENAME.to_string());
-    let reader: Box<dyn BufRead> = if filename == "-" && atty::is(Stream::Stdin) {
-        Box::new(BufReader::new(io::stdin()))
-    } else {
-        Box::new(BufReader::new(fs::File::open(filename).unwrap()))
-    };
+fn main() -> Result<()> {
+    let reader = common::get_reader(DEFAULT_FILENAME)?;
 
     let mut part1: u32 = 0;
     let mut part2: u32 = 0;
-    for line in reader.lines() {
-        if let Ok(l) = line {
-            if !l.is_empty() {
-                part1 += parse_calibration_value(&l);
-                part2 += parse_correct_calibration_value(&l);
-            }
+    for line in reader.lines().map_while(Result::ok) {
+        if !line.is_empty() {
+            part1 += parse_calibration_value(&line);
+            part2 += parse_correct_calibration_value(&line);
         }
     }
 
     println!("Part 1: {part1}");
     println!("Part 2: {part2}");
+
+    Ok(())
 }

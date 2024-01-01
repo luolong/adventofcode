@@ -110,10 +110,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7"
 
 [[package]]
+name = "common"
+version = "2023.12.2"
+dependencies = [
+ "anyhow",
+ "atty",
+ "itertools",
+ "log",
+]
+
+[[package]]
 name = "day1"
 version = "2023.12.2"
 dependencies = [
+ "anyhow",
  "atty",
+ "common",
 ]
 
 [[package]]
@@ -122,6 +134,7 @@ version = "2023.12.2"
 dependencies = [
  "anyhow",
  "atty",
+ "common",
 ]
 
 [[package]]
@@ -130,6 +143,7 @@ version = "2023.12.2"
 dependencies = [
  "anyhow",
  "atty",
+ "common",
  "itertools",
  "log",
 ]
@@ -140,6 +154,7 @@ version = "2023.12.2"
 dependencies = [
  "anyhow",
  "atty",
+ "common",
  "itertools",
  "log",
 ]
@@ -150,6 +165,18 @@ version = "2023.12.2"
 dependencies = [
  "anyhow",
  "atty",
+ "common",
+ "itertools",
+ "log",
+]
+
+[[package]]
+name = "day6"
+version = "2023.12.2"
+dependencies = [
+ "anyhow",
+ "atty",
+ "common",
  "itertools",
  "log",
 ]

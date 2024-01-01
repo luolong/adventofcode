@@ -1,9 +1,7 @@
-use std::io::{BufRead, BufReader};
-use std::{env, fs, io};
+use std::io::BufRead;
 
 use crate::Char::{Blank, Digit, Symbol};
-use anyhow::{bail, Context, Result};
-use atty::Stream;
+use anyhow::{bail, Result};
 use itertools::izip;
 
 const DEFAULT_FILENAME: &str = "day3.txt";
@@ -25,20 +23,9 @@ impl From<char> for Char {
 }
 
 fn main() -> Result<()> {
-    let filename = env::args()
-        .skip(1)
-        .next()
-        .unwrap_or_else(|| DEFAULT_FILENAME.to_string());
+    let reader = common::get_reader(DEFAULT_FILENAME)?;
 
-    let reader: Box<dyn BufRead> = if filename == "-" && atty::is(Stream::Stdin) {
-        Box::new(BufReader::new(io::stdin()))
-    } else {
-        Box::new(BufReader::new(
-            fs::File::open(&filename).with_context(|| format!("Opening file {filename:?}"))?,
-        ))
-    };
-
-    let mut original_lines: Vec<String> = reader.lines().filter_map(|l| l.ok()).collect();
+    let mut original_lines: Vec<String> = reader.lines().map_while(Result::ok).collect();
 
     let line_length = original_lines
         .first()
