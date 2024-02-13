@@ -1,3 +1,5 @@
+mod common;
+
 use anyhow::Result;
 use std::io::BufRead;
 

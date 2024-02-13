@@ -1,4 +1,10 @@
-/.idea/
 /target
 /day*.txt
 /day*.out
+
+.fluentci/
+.lapce/
+.idea/
+
+.DS_Store
+

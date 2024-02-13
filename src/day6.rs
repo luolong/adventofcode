@@ -1,3 +1,5 @@
+mod common;
+
 use std::{io::BufRead, iter::zip, str::FromStr};
 
 use anyhow::{bail, Context, Ok, Result};

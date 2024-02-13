@@ -1,3 +1,5 @@
+mod common;
+
 use std::cmp::{max, min};
 use std::fmt::{Debug, Display, Formatter};
 use std::io::{BufRead, Lines};

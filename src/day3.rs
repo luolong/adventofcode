@@ -1,3 +1,5 @@
+mod common;
+
 use std::io::BufRead;
 
 use crate::Char::{Blank, Digit, Symbol};

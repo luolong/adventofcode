@@ -1,3 +1,5 @@
+mod common;
+
 use std::cmp::min;
 use std::collections::HashSet;
 use std::io::BufRead;

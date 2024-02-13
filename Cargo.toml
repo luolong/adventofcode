@@ -1,30 +1,39 @@
-[workspace]
-members = ["crates/*"]
-default-members = ["crates/*"]
-
-
-[workspace.package]
+[package]
+name = "aoc"
 version = "2023.12.2"
+description = "Advent of Code 2023"
 edition = "2021"
 authors = ["Roland Tepp <roland@tepp.info>"]
 
-[workspace.dependencies]
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
 atty = "0.2"
 thiserror = "1"
 anyhow = "1"
 itertools = "0.12"
 log = "0.4"
 
+[[bin]]
+name = "day1"
+path = "src/day1.rs"
 
-[package]
-name = "aoc"
-description = "Advent of Code 2023"
-version.workspace = true
-edition.workspace=true
+[[bin]]
+name = "day2"
+path = "src/day2.rs"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "day3"
+path = "src/day3.rs"
 
-[dependencies]
-clap = {version = "4", features = ["cargo"]}
-thiserror.workspace = true
-anyhow.workspace = true
+[[bin]]
+name = "day4"
+path = "src/day4.rs"
+
+[[bin]]
+name = "day5"
+path = "src/day5.rs"
+
+[[bin]]
+name = "day6"
+path = "src/day6.rs"

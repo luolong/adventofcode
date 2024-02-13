@@ -1,3 +1,5 @@
+mod common;
+
 use std::cmp::max;
 use std::fmt::{Display, Formatter};
 use std::io::BufRead;
