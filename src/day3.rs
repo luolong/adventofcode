@@ -162,20 +162,18 @@ fn main() -> Result<()> {
             eprintln!("❯ symbol: {symbol:?}; gear: {gear:?}, numbers: {numbers:?}");
             eprintln!("❯ part1 = {part1}");
             eprintln!("❯ part2 = {part2}");
-            if ['.', '.', '.'] == ccc || i + 1 == line_length {
-                if !numbers.is_empty() {
-                    if numbers.len() > 1 {
-                        let gear_ratio: u32 = numbers.iter().product();
-                        eprint!("❯ part2: {part2} + {}", gear_ratio);
-                        part2 += gear_ratio;
-                        eprintln!(" = {part2}");
-                    }
-                    numbers.clear();
+            if (['.', '.', '.'] == ccc || i + 1 == line_length) && !numbers.is_empty() {
+                if numbers.len() > 1 {
+                    let gear_ratio: u32 = numbers.iter().product();
+                    eprint!("❯ part2: {part2} + {}", gear_ratio);
+                    part2 += gear_ratio;
+                    eprintln!(" = {part2}");
                 }
+                numbers.clear();
             }
 
             for n in 0..3 {
-                if let Some(_) = res[n].0 {
+                if res[n].0.is_some() {
                     start[n] = None
                 }
             }
@@ -190,7 +188,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn parse_number(line: &String, start: Option<usize>, end: usize) -> Option<u32> {
+fn parse_number(line: &str, start: Option<usize>, end: usize) -> Option<u32> {
     let num = start
         .and_then(|it| line.get(it..end))
         .and_then(|s| s.parse::<u32>().ok());

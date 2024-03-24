@@ -134,7 +134,7 @@ impl Remap for Seed {
             return vec![Seed(destination_range_start + diff)];
         }
 
-        vec![self.clone()]
+        vec![*self]
     }
 }
 
@@ -280,7 +280,7 @@ where
         if let Some(first) = iter.next() {
             write!(f, "{first}")?;
         }
-        while let Some(next) = iter.next() {
+        for next in iter {
             write!(f, " {next}")?;
         }
         write!(f, "]")
@@ -312,7 +312,7 @@ impl FromStr for Items<Seed> {
         let mut items: Vec<Seed> = line
             .split_ascii_whitespace()
             .map(|s| s.parse::<usize>())
-            .map_ok(|s| Seed(s))
+            .map_ok(Seed)
             .try_collect()
             .context("Parsing numbers")?;
 
@@ -375,7 +375,7 @@ where
             eprintln!();
 
             let p = format!("❱❱❱ 〖{pp1}..{pp2}〗: {:?}｟", &sources[..pp1]);
-            if let Some(len) = p.chars().try_len().ok() {
+            if let Ok(len) = p.chars().try_len() {
                 if pp1 < pp2 {
                     eprintln!("{}{}", " ".repeat(len), "─".repeat(pp1.abs_diff(pp2)))
                 } else {
