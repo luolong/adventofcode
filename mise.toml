@@ -12,3 +12,6 @@ run = "java --source 24 --enable-preview --class-path 'src/*' src/Day03.java"
 
 [tasks.day04]
 run = "java --source 24 --enable-preview --class-path 'src/*' src/Day04.java"
+
+[tasks.day05]
+run = "java --source 24 --enable-preview --class-path 'src/*' src/Day05.java"
