@@ -1,0 +1,10 @@
+/out/
+/.bsp/
+/.idea/
+day*.txt
+_day*.txt
+!day*test.txt
+input.txt
+
+.bloop/
+.metals/
