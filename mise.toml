@@ -3,3 +3,6 @@ java = "24"
 
 [tasks.day01]
 run = "java --source 24 --enable-preview --class-path 'src/*' src/Day01.java"
+
+[tasks.day02]
+run = "java --source 24 --enable-preview --class-path 'src/*' src/Day02.java"
