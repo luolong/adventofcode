@@ -1,0 +1,2 @@
+[tools]
+    java = { version = "26.0.0-jep401ea2", release_type = "ea" }
