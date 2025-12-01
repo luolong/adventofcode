@@ -16,7 +16,7 @@ void printUsage() {
 }
 
 static final Object[] SOLUTIONS = {
-    null, //new Day01(),
+    new Day01(),
     null, //new Day02(),
     null, //new Day03(),
     null, //new Day04(),
@@ -28,18 +28,6 @@ static final Object[] SOLUTIONS = {
     null, //new Day10(),
     null, //new Day11(),
     null, //new Day12(),
-    null, //new Day13(),
-    null, //new Day14(),
-    null, //new Day15(),
-    null, //new Day16(),
-    null, //new Day17(),
-    null, //new Day18(),
-    null, //new Day19(),
-    null, //new Day20(),
-    null, //new Day21(),
-    null, //new Day22(),
-    null, //new Day23(),
-    null, //new Day24()
 };
 
 String readAsString(Path path) {
