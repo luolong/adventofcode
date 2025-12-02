@@ -4,7 +4,6 @@ This repository contains my solutions to Advent of Code puzzles over the years a
 
 This branch here represents solutions to Advent of Code 2025 solutions implemented in Java.
 
-## Results (Day 1, 2, 3)
 ## Running and testing
 
 This project uses Justfile to manage the build and execution of the solutions.
@@ -32,9 +31,12 @@ Additionally, the compilation takes advantage of some of the ahead of time optim
 [1]: https://jdk.java.net/valhalla/
 [2]: https://openjdk.org/jeps/401
 
+## Results (Day 1, 2)
 
 ```
 ./just run all
 Day 1 Part 1: 1191 (finished in 9 milliseconds 942 microseconds 441 ns)
 Day 1 Part 2: 6858 (finished in 5 milliseconds 839 microseconds 470 ns)
+Day 2 Part 1: 9188031749 (finished in 59 milliseconds 836 microseconds 753 ns)
+Day 2 Part 2: 11323661261 (finished in 28 milliseconds 863 microseconds 159 ns)
 ```
