@@ -18,7 +18,7 @@ void printUsage() {
 static final Object[] SOLUTIONS = {
     new Day01(),
     new Day02(),
-    null, //new Day03(),
+    new Day03(),
     null, //new Day04(),
     null, //new Day05(),
     null, //new Day06(),
