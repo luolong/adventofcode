@@ -23,7 +23,7 @@ static final Object[] SOLUTIONS = {
     new Day05(),
     new Day06(),
     new Day07(),
-    null, //new Day08(),
+    new Day08(),
     null, //new Day09(),
     null, //new Day10(),
     null, //new Day11(),

@@ -23,4 +23,6 @@ Day 6 Part 1: 4449991244405 (finished in 10 ms 290 µs 837 ns)
 Day 6 Part 2: 9348430857627 (finished in 6 ms 219 µs 54 ns)
 Day 7 Part 1: 1711 (finished in 14 ms 944 µs 600 ns)
 Day 7 Part 2: 36706966158365 (finished in 10 ms 981 µs 805 ns)
+Day 8 Part 1: 140008 (finished in 245 ms 314 µs 823 ns)
+Day 8 Part 2: 9253260633 (finished in 96 ms 55 µs 555 ns)
 ```
