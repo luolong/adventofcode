@@ -10,4 +10,8 @@ This branch here represents solutions to Advent of Code 2025 solutions implement
 ❯ odin run . -o:speed
 AoC 2025 (Odin)
 Running all days
+Day 01:
+  Part 1: 1191
+  Part 2: 6858
+  Completed in 192.167µs
 ```

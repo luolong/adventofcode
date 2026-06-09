@@ -10,6 +10,7 @@ import "day02"
 
 Solution :: proc(str_ptr: ^string) -> (val1, val2: u64)
 SOLUTIONS :: [13]Solution {
+    1 = day01.day01,
 }
 
 run :: proc(day: int, solution: Solution) {
@@ -56,7 +57,7 @@ main :: proc() {
                 fmt.println("---")
             }
 
-			fmt.printfln("Day %02d:", day)
+            fmt.printfln("Day %02d:", day)
             run(day, solution)
         }
     case 1 ..= 12:
@@ -66,7 +67,7 @@ main :: proc() {
             os.exit(1)
         }
 
-		fmt.printfln("Day %02d:", opt.day)
+        fmt.printfln("Day %02d:", opt.day)
         run(opt.day, solutions[opt.day])
     case:
         fmt.eprintfln("ERROR: AoC 2025 does not have day %d!", opt.day)
