@@ -1,0 +1,82 @@
+[tools]
+fd = "latest"
+odin = "latest"
+
+[tasks.runall]
+description = "Run all days"
+usage = '''
+flag "--define -D <defines>" var=#true help="Define a key-value pair for use in the run script"
+'''
+
+run = '''
+#!/usr/bin/env bash
+eval "defines_arr=($usage_define)"
+
+declare -a compiler_flags=(-o:speed)
+for def in "${defines_arr[@]}"; do
+  compiler_flags+=("-define:$def")
+done
+
+echo "Running odin build . ${compiler_flags[@]}"
+odin run . "${compiler_flags[@]}"
+'''
+
+[tasks.download]
+description = "Download input for a given day"
+
+sources = ["day*.odin"]
+outputs = ["day*.txt"]
+
+usage = '''
+arg "[day]" help="Day to download input for"
+flag "--session <session>" help="Session cookie"
+'''
+
+run = '''
+# Download input for a given day
+
+if [[ -z "${usage_session}" ]]; then
+  if [[ -f ".env" ]]; then
+    source .env
+    if [[ -z "${SESSION_COOKIE}" ]]; then
+      echo "SESSION_COOKIE not set in .env"
+      exit 1
+    fi
+    usage_session="${SESSION_COOKIE}"
+  else
+    echo ".env not found"
+    exit 1
+  fi
+else
+  if [[ ! -f ".env" ]]; then
+    echo "SESSION_COOKIE=${usage_session}" > .env
+  else
+    grep -q SESSION_COOKIE .env \
+        && sed -i'' 's/^SESSION_COOKIE=.*$/SESSION_COOKIE='"${usage_session}"'/g' .env \
+    || echo "SESSION_COOKIE=${usage_session}" >> .env
+  fi
+fi
+
+days=()
+if [[ -z "${usage_day}" ]]; then
+  echo "Downloading input for all days"
+  for file in $(fd --type d --max-depth 1 ^day -x echo '{/}'); do
+    raw_num=$(echo "$file" | grep -oE '[0-9]+')
+
+    if [[ -f "day${raw_num}.txt" ]]; then
+        echo "Skipping day ${raw_num} (already downloaded)"
+        continue
+    fi
+    days+=("$((10#$raw_num))")
+  done
+else
+  echo "Downloading input for day ${usage_day?}"
+  days=( "${usage_day?}" )
+fi
+
+for day in "${days[@]}"; do
+    echo "Downloading input for day $day..."
+    printf -v filename "day%02d.txt" "$day"
+    curl -s "https://adventofcode.com/2025/day/${day}/input" -H "Cookie: session=${usage_session?}" -o "${filename}"
+done
+'''
