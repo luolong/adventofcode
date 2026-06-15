@@ -11,6 +11,7 @@ import "day02"
 Solution :: proc(str_ptr: ^string) -> (val1, val2: u64)
 SOLUTIONS :: [13]Solution {
     1 = day01.day01,
+    2 = day02.day02,
 }
 
 run :: proc(day: int, solution: Solution) {
