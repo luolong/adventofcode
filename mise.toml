@@ -24,7 +24,7 @@ odin run . "${compiler_flags[@]}"
 [tasks.download]
 description = "Download input for a given day"
 
-sources = ["day*.odin"]
+sources = ["day*/day*.odin"]
 outputs = ["day*.txt"]
 
 usage = '''

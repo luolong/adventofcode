@@ -4,7 +4,7 @@ import "core:math"
 import "core:strconv"
 import "core:strings"
 
-MERGE_RANGES :: #config(MERGE_RANGES, false)
+DAY2_MERGE_RANGES :: #config(DAY2_MERGE_RANGES, false)
 
 Range :: struct {
     min: uint,
@@ -47,7 +47,7 @@ merge_ranges :: proc(r1, r2: Range) -> Range {
 add_range :: proc(ranges: ^[dynamic]Range, r: Range) {
     if len(ranges) > 0 {
         for r2, i in ranges {
-            when MERGE_RANGES {
+            when DAY2_MERGE_RANGES {
                 if is_range_overlap(r, r2) || is_connected(r, r2) {
                     ranges[i] = merge_ranges(r, r2)
                     return

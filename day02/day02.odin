@@ -17,8 +17,8 @@ parse_ranges :: proc(input: ^string) -> (value: [dynamic]Range, ok: bool = false
 }
 
 day02 :: proc(input: ^string) -> (part1: u64 = 0, part2: u64 = 0) {
-    when MERGE_RANGES {
-        fmt.printfln("Running with MERGE_RANGES enabled")
+    when DAY2_MERGE_RANGES {
+        fmt.printfln("Running with DAY2_MERGE_RANGES enabled")
     }
 
     all_ranges, ok := parse_ranges(input)

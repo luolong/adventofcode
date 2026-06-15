@@ -1,0 +1,21 @@
+// Project tasks configuration. See https://zed.dev/docs/tasks for documentation.
+//
+// Example:
+[
+  {
+    "label": "Test all",
+    "command": "odin",
+    "args": ["test", ".", "-all-packages"],
+    "reveal": "no_focus",
+    "hide": "on_success",
+    "save": "all",
+  },
+  {
+    "label": "Run all days",
+    "command": "mise",
+    "args": ["runall"],
+    "reveal": "no_focus",
+    "hide": "on_success",
+    "save": "all",
+  }
+]
